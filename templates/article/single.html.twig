@@ -1,0 +1,15 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Article: {{ article.title }}{% endblock %}
+
+{% block main %}
+<div class="jumbotron">
+    <h1>{{ article.title }}</h1>
+    <img src="{{ article.cover }}" class="img-fluid" alt="Illustration de l'article" />
+</div>
+<p>{{ article.content }}</p>
+<div>
+    {% include 'partial/article/meta.html.twig' %}
+</div>
+<a href="{{ path('article_list') }}" class="btn btn-secondary">Retour</a>
+{% endblock %}

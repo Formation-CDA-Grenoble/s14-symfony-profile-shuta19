@@ -1,0 +1,12 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Créer un nouvel article{% endblock %}
+
+{% block main %}
+<h1>{{ article.id == null ? 'Créer' : 'Modifier' }} un article</h1>
+
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+{{ form_end(form) }}
+
+{% endblock %}

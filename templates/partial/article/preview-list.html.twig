@@ -1,0 +1,5 @@
+<div style="display: grid; gap: 2em; grid-template-columns: repeat(2, 1fr);">
+{% for article in articles %}
+    {% include 'partial/article/preview.html.twig' %}
+{% endfor %}
+</div>

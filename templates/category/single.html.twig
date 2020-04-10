@@ -1,0 +1,13 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Catégorie: {{ category.name }}{% endblock %}
+
+{% block main %}
+<div class="jumbotron">
+    <h1>{{ category.name }}</h1>
+    <p>{{ category.description }}</p>
+    <img src="{{ category.image }}" class="img-fluid" alt="Illustration de la catégorie" />
+</div>
+<h2>Liste des articles dans cette catégorie</h2>
+{% include 'partial/article/preview-list.html.twig' %}
+{% endblock %}

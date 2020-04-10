@@ -1,0 +1,19 @@
+<p>
+    <small>
+        Ecrit par 
+        {% if article.author == null %}
+            Anonyme
+        {% else %}
+            <a href="{{ path('user_show', {id: article.author.id}) }}">{{ article.author.name }}</a>
+        {% endif %}
+    </small>
+</p>
+<p>
+    <small>Publié dans
+        <a href="{{ path('category_show', {id: article.category.id}) }}">{{ article.category.name }}</a>
+        le {{ article.createdAt|date('Y-m-d H:i:s') }}
+        {% if article.createdAt != article.updatedAt %}
+            , dernière mise à jour le {{ article.updatedAt|date('Y-m-d H:i:s') }}
+        {% endif %}
+    </small>
+</p>

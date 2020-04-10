@@ -1,0 +1,18 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Se connecter{% endblock %}
+
+{% block main %}
+<form method="post">
+    <h1 class="h3 mb-3 font-weight-normal">Créer un compte</h1>
+    <label for="inputName">Nom d'utilisateur</label>
+    <input type="text" name="name" id="inputName" class="form-control" required autofocus>
+    <label for="inputEmail">E-mail</label>
+    <input type="email" name="email" id="inputEmail" class="form-control" required>
+    <label for="inputPassword">Mot de passe</label>
+    <input type="password" name="password" id="inputPassword" class="form-control" required>
+    <button class="btn btn-primary" type="submit">
+        Valider
+    </button>
+</form>
+{% endblock %}

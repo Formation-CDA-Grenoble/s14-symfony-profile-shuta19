@@ -1,0 +1,15 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Utilisateur: {{ user.username }}{% endblock %}
+
+{% block main %}
+<h1>{{ user.name }}</h1>
+<ul>
+    <li>E-mail: <a href="mailto:{{ user.email }}">{{ user.email }}</a></li>
+</ul>
+{% if app.user == user %}
+    <a href="{{ path('user_edit_form') }}" class="btn btn-secondary">Modifier les informations</a>
+{% endif %}
+<h2>Liste des articles publiés par cet utilisateur</h2>
+{% include 'partial/article/preview-list.html.twig' %}
+{% endblock %}
