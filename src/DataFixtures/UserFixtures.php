@@ -1,57 +1,96 @@
 <?php
 
-namespace App\DataFixtures;
+namespace App\Controller;
 
-use Faker;
 use App\Entity\User;
-use Doctrine\Persistence\ObjectManager;
-use Doctrine\Bundle\FixturesBundle\Fixture;
+use App\Repository\ArticleRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-class UserFixtures extends Fixture
+/**
+ * @Route("/user", name="user_")
+ */
+class UserController extends AbstractController
 {
-    const AMOUNT = 5;
-
     private $passwordEncoder;
+    private $urlGenerator;
+    private $security;
 
-    public function __construct(UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder, UrlGeneratorInterface $urlGenerator, Security $security)
     {
         $this->passwordEncoder = $passwordEncoder;
+        $this->urlGenerator = $urlGenerator;
+        $this->security = $security;
     }
 
-    public function load(ObjectManager $manager)
+    /**
+     * @Route("/{id<\d+>}", name="show")
+     */
+    public function show(User $user)
     {
-        $faker = Faker\Factory::create('fr_FR');
+        return $this->render('user/single.html.twig', [
+            'user' => $user,
+            'articles' => $user->getArticles()
+        ]);
+    }
 
-        $user = new User();
+    /**
+     * @IsGranted("ROLE_USER")
+     * @Route("/edit", methods={"GET"}, name="edit_form")
+     */
+    public function editForm()
+    {
+        return $this->render('user/edit.html.twig');
+    }
 
-        $user
-            ->setEmail('admin@test.com')
-            ->setName('admin')
-            ->setRoles(['ROLE_ADMIN'])
-            ->setPassword($this->passwordEncoder->encodePassword(
-                $user,
-                'admin'
-            ))
-        ;
+    /**
+     * @Route("/edit", methods={"POST"}, name="process_edit")
+     */
+    public function processEdit(Request $request, EntityManagerInterface $entityManager)
+    {
+        $user = $this->getUser();
 
-        $manager->persist($user);
-
-        for ($i = 0; $i < self::AMOUNT; $i += 1) {
-            $user = new User();
-
-            $user
-                ->setEmail($faker->email())
-                ->setName($faker->userName())
-                ->setPassword($this->passwordEncoder->encodePassword(
-                    $user,
-                    'motdepasse'
-                ))
-            ;
-
-            $manager->persist($user);
+        if (is_null($user)) {
+            throw $this->createAccessDeniedException('Vous devez être connecté pour voir cette page');
         }
-        
-        $manager->flush();
+
+        $user->setName($request->request->get('name'));
+
+        $newPassword = $request->request->get('password');
+
+        if (!empty($newPassword)) {
+            $user->setPassword($this->passwordEncoder->encodePassword(
+                $user,
+                $newPassword
+            ));
+        }
+
+        $entityManager->persist($user);
+
+        $entityManager->flush();
+
+        return new RedirectResponse($this->urlGenerator->generate('user_show', ['id' => $user->getId()]));
+    }
+
+    /**
+     * @IsGranted("ROLE_USER")
+     * @Route("/publish", name="publish")
+     */
+    public function publish(ArticleRepository $articleRepository)
+    {
+        $parameters = [];
+
+        if ($this->security->isGranted('ROLE_ADMIN')) {
+            $parameters['articles'] = $articleRepository->findAll();
+        }
+
+        return $this->render('user/publish.html.twig', $parameters);
     }
 }
